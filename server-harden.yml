@@ -1,17 +1,18 @@
 # Initial Server Hardening Playbook
 # Used for all VPS in production
 ---
-- hosts: all
-  become: yes
+- hosts: localhost
+  user: "{{ sudouser }}"
+  sudo: yes
   vars:
     user: "{{ username }}"
     user_passwd: "{{ upwd | password_hash('sha512') }}"
     root_passwd: "{{ rpwd | password_hash('sha512') }}"
     ssh_port: 22
-    timezone: "{{ time_zone }}"
-    host_ip: "{{ controller_ip }}"
-    host_name: "{{ controller_url }}"
-    host_name_short: "{{ controller_url_short }}"
+    timezone: "{{ timezone }}"
+    host_ip: "{{ ctrl_ip }}"
+    host_name: "{{ ctrl_url }}"
+    host_name_short: "{{ ctrl_url_short }}"
     sudo_timeout: 60
 
     # Set ufw logging: on | off | low | medium | high | full

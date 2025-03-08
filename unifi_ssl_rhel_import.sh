@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# unifi_ssl_import.sh
-# UniFi Controller SSL Certificate Import Script for Unix/Linux Systems
-
 # CONFIGURATION OPTIONS
 UNIFI_HOSTNAME=$1
 UNIFI_SERVICE=unifi

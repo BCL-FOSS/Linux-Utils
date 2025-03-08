@@ -1,0 +1,121 @@
+---
+- name: Install UniFi Network Controller on Ubuntu
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Update APT package index
+      apt:
+        update_cache: yes
+
+    - name: Add UniFi repository
+      copy:
+        dest: /etc/apt/sources.list.d/100-ubnt-unifi.list
+        content: 'deb [ arch=amd64,arm64 ] https://www.ui.com/downloads/unifi/debian stable ubiquiti'
+
+    - name: Download and add UniFi GPG key
+      get_url:
+        url: https://dl.ui.com/unifi/unifi-repo.gpg
+        dest: /etc/apt/trusted.gpg.d/unifi-repo.gpg
+
+    - name: Download and add MongoDB 8.0 GPG key
+      shell: curl -fsSL https://www.mongodb.org/static/pgp/server-8.0.asc | gpg -o /usr/share/keyrings/mongodb-server-8.0.gpg --dearmor
+      changed_when: false
+
+    - name: Add MongoDB 8.0 repository
+      copy:
+        dest: /etc/apt/sources.list.d/mongodb-org-8.0.list
+        content: 'deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg ] https://repo.mongodb.org/apt/ubuntu noble/mongodb-org/8.0 multiverse'
+
+    - name: Update APT package index after adding repositories
+      apt:
+        update_cache: yes
+
+    - name: Install MongoDB
+      apt:
+        name:
+          - mongodb-org
+        state: present
+
+    - name: Reload systemd daemon
+      command: systemctl daemon-reload
+
+    - name: Start MongoDB
+      command: systemctl start mongod
+
+    - name: Enable MongoDB
+      command: systemctl enable mongod
+
+    - name: Ensure MongoDB service is running
+      systemd:
+        name: mongod
+        state: started
+        enabled: yes
+
+    - name: Install UniFi Controller
+      apt:
+        name:
+          - unifi
+        state: present
+
+    - name: Start UniFi
+      command: service unifi start
+
+    - name: Ensure UniFi service is running
+      systemd:
+        name: unifi
+        state: started
+        enabled: yes
+
+    - name: Open required firewall ports
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: tcp
+      loop:
+        - 8080
+        - 8443
+        - 80
+
+    - name: Install Acme.sh for SSL
+      shell: curl https://get.acme.sh | sh -s email={{ acme_email }}
+      args:
+        creates: ~/.acme.sh/acme.sh
+      changed_when: false
+
+    - name: Issue SSL certificate using Cloudflare DNS
+      shell: acme.sh --issue --dns dns_cf -d {{ controller_hostname }}
+      changed_when: false
+
+    - name: Install Certbot and enable SSL with Apache
+      block:
+        - name: Add Certbot PPA
+          apt_repository:
+            repo: ppa:certbot/certbot
+            state: present
+
+        - name: Install Snapd and Certbot
+          apt:
+            name:
+              - snapd
+            state: present
+
+        - name: Install and update Certbot via Snap
+          shell: |
+            snap install core && snap refresh core
+            snap install --classic certbot
+            ln -s /snap/bin/certbot /usr/bin/certbot
+          changed_when: false
+
+        - name: Obtain SSL certificate using Certbot
+          shell: certbot certonly -d {{ controller_hostname }}
+          changed_when: false
+
+    - name: Download UniFi SSL import script
+      get_url:
+        url: https://https://raw.githubusercontent.com/BCL-FOSS/Linux-Utils/main/unifi_ssl_deb_import.sh
+        dest: /usr/local/bin/unifi_ssl_deb_import.sh
+        mode: '0755'
+
+    - name: Run UniFi SSL import script
+      command: /usr/local/bin/unifi_ssl_deb_import.sh {{ controller_hostname }}

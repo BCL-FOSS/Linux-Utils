@@ -5,7 +5,6 @@
   user: "{{ sudouser }}"
   sudo: yes
   vars:
-    user: "{{ user }}"
     user_passwd: "{{ user_passwd | password_hash('sha512') }}"
     root_passwd: "{{ root_passwd | password_hash('sha512') }}"
     ssh_port: 5050

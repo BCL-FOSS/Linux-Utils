@@ -1,7 +1,7 @@
 ---
-- name: Install UniFi Network Controller on Ubuntu
-  hosts: all
-  become: yes
+- hosts: localhost
+  user: "{{ sudouser }}"
+  sudo: yes
 
   tasks:
     - name: Update APT package index

@@ -5,6 +5,9 @@
   user: "{{ sudouser }}"
   sudo: yes
   vars:
+    user: "{{ user }}"
+    user_passwd: "{{ user_passwd | password_hash('sha512') }}"
+    root_passwd: "{{ root_passwd | password_hash('sha512') }}"
     ssh_port: 5050
     host_ip: "{{ ctrl_ip }}"
     sudo_timeout: 60
@@ -102,11 +105,35 @@
         line: 'Defaults env_reset, timestamp_timeout={{ sudo_timeout }}'
         validate: '/usr/sbin/visudo -cf %s'
 
-    - name: Ensure authorized keys for root user is installed
+    - name: Create/update regular user with sudo privileges
+      user:
+        name: "{{ user }}"
+        password: "{{ user_passwd }}"
+        state: present
+        groups: sudo
+        append: true
+        shell: /bin/bash
+
+    - name: Ensure ansible_sudo_passwd matches the [new] user password
+      set_fact:
+        ansible_sudo_passwd: "{{ user_passwd }}"
+
+    - name: Ensure authorized keys for remote user is installed
+      authorized_key:
+        user: "{{ user }}"
+        state: present
+        key: "{{ user_ssh_pub_key }}"
+
+    - name: Ensure authorized key for root user is installed
       authorized_key:
         user: root
         state: present
         key: "{{ ssh_pub_key }}"
+
+    - name: Update root user password.
+      user:
+        name: root
+        password: "{{ root_passwd }}"
 
     - name: Disable password authentication for root
       lineinfile:

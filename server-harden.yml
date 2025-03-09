@@ -5,14 +5,8 @@
   user: "{{ sudouser }}"
   sudo: yes
   vars:
-    user: "{{ username }}"
-    user_passwd: "{{ upwd | password_hash('sha512') }}"
-    root_passwd: "{{ rpwd | password_hash('sha512') }}"
-    ssh_port: 22
-    timezone: "{{ timezone }}"
+    ssh_port: 5050
     host_ip: "{{ ctrl_ip }}"
-    host_name: "{{ ctrl_url }}"
-    host_name_short: "{{ ctrl_url_short }}"
     sudo_timeout: 60
 
     # Set ufw logging: on | off | low | medium | high | full
@@ -99,25 +93,6 @@
         path: /var/run/reboot-required
       register: reboot_required
 
-    # Host Setup
-    - name: Add FQDN to /etc/hosts
-      lineinfile:
-        dest: /etc/hosts
-        regexp: '^127\.0\.1\.1'
-        line: '127.0.1.1 {{ host_name }} {{ host_name_short }}'
-        state: present
-
-    - name: Add FQDN to /etc/cloud/templates/hosts.debian.tmpl
-      lineinfile:
-        dest: /etc/cloud/templates/hosts.debian.tmpl
-        regexp: '^127\.0\.1\.1'
-        line: "127.0.1.1 {{ host_name }} {{ host_name_short }}"
-        state: present
-      
-    - name: set timezone
-      timezone:
-        name: "{{ timezone }}"
-
     # Set sudo password timeout (default is 15 minutes)
     - name: Set sudo password timeout.
       lineinfile:
@@ -127,35 +102,11 @@
         line: 'Defaults env_reset, timestamp_timeout={{ sudo_timeout }}'
         validate: '/usr/sbin/visudo -cf %s'
 
-    - name: Create/update regular user with sudo privileges
-      user:
-        name: "{{ user }}"
-        password: "{{ user_passwd }}"
-        state: present
-        groups: sudo
-        append: true
-        shell: /bin/bash
-
-    - name: Ensure ansible_sudo_passwd matches the [new] user password
-      set_fact:
-        ansible_sudo_passwd: "{{ user_passwd }}"
-
-    - name: Ensure authorized keys for remote user is installed
-      authorized_key:
-        user: "{{ user }}"
-        state: present
-        key: "{{ ssh_pub_key }}"
-
-    - name: Ensure authorized key for root user is installed
+    - name: Ensure authorized keys for root user is installed
       authorized_key:
         user: root
         state: present
         key: "{{ ssh_pub_key }}"
-
-    - name: Update root user password.
-      user:
-        name: root
-        password: "{{ root_passwd }}"
 
     - name: Disable password authentication for root
       lineinfile:

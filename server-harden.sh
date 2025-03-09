@@ -1,6 +1,7 @@
 #!/bin/sh
+# Pull and run server hardening playbook for Production Ubuntu Server
 
 sudo ansible-pull -U "https://github.com/BCL-FOSS/Linux-Utils.git" -i localhost, -c local server-harden.yml \
-                --extra-vars "sudouser=$1 username=$2 upwd=$3 rpwd=$4 timezone=$5 ctrl_ip=$6 ctrl_url=$7 ctrl_url_short=$8"
+                --extra-vars "sudouser=$1 ctrl_ip=$2 ssh_pub_key=$3"
 
 

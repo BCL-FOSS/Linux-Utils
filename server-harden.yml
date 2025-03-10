@@ -61,6 +61,17 @@
       delay: 5
       until: upgrade is success
 
+    - name: Ensure that a base set of software packages are installed
+      apt:
+        pkg:
+          - apt-transport-https
+          - build-essential
+          - fail2ban
+          - pwgen
+          - unbound
+          - unzip
+        state: latest
+
     - name: Create a local systemd-resolved configuration directory.
       file:
         path: /etc/systemd/resolved.conf.d

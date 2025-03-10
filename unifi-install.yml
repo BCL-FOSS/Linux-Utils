@@ -4,9 +4,30 @@
   sudo: yes
 
   tasks:
-    - name: Update APT package index
+    - name: Update apt package cache
       apt:
         update_cache: yes
+
+    - name: Upgrade installed apt packages 
+      apt:
+        upgrade: dist
+      register: upgrade
+      retries: 15
+      delay: 5
+      until: upgrade is success
+
+    - name: Ensure that a base set of software packages are installed
+      apt:
+        pkg:
+          - ufw
+          - vim
+          - nano
+          - git
+          - ca-certificates
+          - gnupg
+          - curl
+          - snapd
+        state: latest
 
     - name: Add UniFi repository
       copy:

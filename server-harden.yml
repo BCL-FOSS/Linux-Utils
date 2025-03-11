@@ -5,8 +5,6 @@
   user: "{{ sudouser }}"
   sudo: yes
   vars:
-    user_passwd: "{{ user_passwd | password_hash('sha512') }}"
-    root_passwd: "{{ root_passwd | password_hash('sha512') }}"
     ssh_port: 5050
     host_ip: "{{ ctrl_ip }}"
     sudo_timeout: 60
@@ -47,7 +45,20 @@
       set_fact:
         cur_date: "{{ dstamp.stdout }}"
 
-    # install the base software
+    # Update and install the base software
+    - name: Update apt package cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Upgrade installed apt packages 
+      apt:
+        upgrade: dist
+      register: upgrade
+      retries: 15
+      delay: 5
+      until: upgrade is success
+
     - name: Ensure that a base set of software packages are installed
       apt:
         pkg:
@@ -102,36 +113,6 @@
         line: 'Defaults env_reset, timestamp_timeout={{ sudo_timeout }}'
         validate: '/usr/sbin/visudo -cf %s'
 
-    - name: Create/update regular user with sudo privileges
-      user:
-        name: "{{ user }}"
-        password: "{{ user_passwd }}"
-        state: present
-        groups: sudo
-        append: true
-        shell: /bin/bash
-
-    - name: Ensure ansible_sudo_passwd matches the [new] user password
-      set_fact:
-        ansible_sudo_passwd: "{{ user_passwd }}"
-
-    - name: Ensure authorized keys for remote user is installed
-      authorized_key:
-        user: "{{ user }}"
-        state: present
-        key: "{{ user_ssh_pub_key }}"
-
-    - name: Ensure authorized key for root user is installed
-      authorized_key:
-        user: root
-        state: present
-        key: "{{ ssh_pub_key }}"
-
-    - name: Update root user password.
-      user:
-        name: root
-        password: "{{ root_passwd }}"
-
     - name: Disable password authentication for root
       lineinfile:
         path: /etc/ssh/sshd_config
@@ -146,9 +127,9 @@
         regexp: '^PasswordAuthentication yes'
         line: 'PasswordAuthentication no'
 
-    - name: Set user PS1 to a two-line prompt
+    - name: Set sudouser PS1 to a two-line prompt
       lineinfile:
-        dest: "/home/{{ user }}/.bashrc"
+        dest: "/home/{{ sudouser }}/.bashrc"
         insertafter: EOF
         line: "PS1='${debian_chroot:+($debian_chroot)}\\[\\033[01;32m\\]\\u@\\h\\[\\033[00m\\]:\\[\\033[01;34m\\]\\w\\[\\033[00m\\]\\n\\$ '"
         state: present
@@ -164,19 +145,6 @@
     - name: Disable and reset ufw firewall to installation defaults.
       ufw:
         state: reset
-
-    - name: Find backup rules to delete
-      find:
-        paths: /etc/ufw
-        patterns: "*.{{ cur_date }}_*"
-        use_regex: no
-      register: files_to_delete
-
-    - name: Delete ufw backup rules
-      file:
-        path: "{{ item.path }}"
-        state: absent
-      with_items: "{{ files_to_delete.files }}"
 
     - name: Set the ssh '{{ ssh_port }}' port number in sshd_config (ver < 22.10).
       lineinfile:

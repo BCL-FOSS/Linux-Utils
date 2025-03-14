@@ -18,7 +18,6 @@ install_ansible() {
     if ! command -v ansible &> /dev/null; then
         echo "Installing Ansible..."
         pipx install --include-deps ansible
-        pipx ensurepath
         
         echo "Ansible installation complete."
     else

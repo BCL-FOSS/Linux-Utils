@@ -23,7 +23,7 @@ install_ansible() {
         echo "Ansible installation complete."
     else
         echo "Ansible is already installed."
-    fi+ 
+    fi
 }
 
 sudo apt update

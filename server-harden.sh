@@ -15,7 +15,8 @@ ansible_installation() {
     # Install Ansible using pip
     if ! command -v ansible &> /dev/null; then
         echo "Installing Ansible..."
-        pip install --user ansible
+        # pip install ansible
+        sudo apt install -y python3-ansible
         echo "Ansible installation complete."
     else
         echo "Ansible is already installed."

@@ -6,7 +6,7 @@ sudo apt update
 sudo apt install -y pipx
 pipx ensurepath
 
-pipx install --include-deps -y ansible
+pipx install --include-deps ansible
 pipx ensurepath
 
 #sudo ansible-pull -U "https://github.com/BCL-FOSS/Linux-Utils.git" -i localhost, -c local server-harden.yml \

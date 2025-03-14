@@ -1,35 +1,34 @@
 #!/bin/sh
 # Pull and run server hardening playbook for Production Ubuntu Server
 
+install_pipx() {
+
+    if ! command -v pipx &> /dev/null; then
+        echo "pipx not found. Installing..."
+        sudo apt install -y pipx
+        pipx ensurepath
+    else
+        echo "pipx is already installed."
+        pipx ensurepath
+    fi
+}
+
 ansible_installation() {
 
-    sudo apt update
-
-    if ! command -v pip &> /dev/null; then
-        echo "pip not found. Installing..."
-        sudo apt install -y python3-pip
-    else
-        echo "pip is already installed."
-    fi
-
-    # Install Ansible using pip
     if ! command -v ansible &> /dev/null; then
         echo "Installing Ansible..."
-        # pip install ansible
-        sudo apt install -y python3-ansible
+        pipx install --include-deps ansible
+        
         echo "Ansible installation complete."
     else
         echo "Ansible is already installed."
     fi
-
-    # Ensure ~/.local/bin is in PATH if needed
-    if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
-        echo "Adding ~/.local/bin to PATH"
-        echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
-        source ~/.bashrc
-    fi
     
 }
+
+sudo apt update
+
+install_pipx
 
 ansible_installation
 

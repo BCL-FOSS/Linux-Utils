@@ -34,7 +34,7 @@ ansible_installation
 
 ansible --version
 
-sudo ansible-pull -U "https://github.com/BCL-FOSS/Linux-Utils.git" -i localhost, -c local server-harden.yml \
-                --extra-vars "sudouser=$1 ctrl_ip=$2"
+#sudo ansible-pull -U "https://github.com/BCL-FOSS/Linux-Utils.git" -i localhost, -c local server-harden.yml \
+#                --extra-vars "sudouser=$1 ctrl_ip=$2"
 
 

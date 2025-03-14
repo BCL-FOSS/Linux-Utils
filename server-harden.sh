@@ -13,26 +13,23 @@ install_pipx() {
     fi
 }
 
-ansible_installation() {
+install_ansible() {
 
     if ! command -v ansible &> /dev/null; then
         echo "Installing Ansible..."
         pipx install --include-deps ansible
+        pipx ensurepath
         
         echo "Ansible installation complete."
     else
         echo "Ansible is already installed."
-    fi
-    
+    fi+ 
 }
 
 sudo apt update
 
 install_pipx
-
-ansible_installation
-
-ansible --version
+install_ansible
 
 #sudo ansible-pull -U "https://github.com/BCL-FOSS/Linux-Utils.git" -i localhost, -c local server-harden.yml \
 #                --extra-vars "sudouser=$1 ctrl_ip=$2"

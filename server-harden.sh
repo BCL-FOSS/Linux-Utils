@@ -6,13 +6,18 @@ sudo apt update
 sudo apt install -y pipx
 pipx ensurepath
 
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
-source ~/.bashrc
+# Add pipx bin directory to PATH if not already present
+if ! echo "$PATH" | grep -q "$HOME/.local/bin"; then
+    echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.bashrc"
+    export PATH="$HOME/.local/bin:$PATH"
+fi
 
-pipx list
-
+# Install Ansible with dependencies
 pipx install --include-deps ansible
-pipx ensurepath
+
+# Verify installation
+pipx list
+ansible --version
 
 #sudo ansible-pull -U "https://github.com/BCL-FOSS/Linux-Utils.git" -i localhost, -c local server-harden.yml \
 #                --extra-vars "sudouser=$1 ctrl_ip=$2"

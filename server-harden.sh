@@ -6,6 +6,11 @@ sudo apt update
 sudo apt install -y pipx
 pipx ensurepath
 
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+
+pipx list
+
 pipx install --include-deps ansible
 pipx ensurepath
 

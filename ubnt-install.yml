@@ -1,8 +1,5 @@
 ---
 - hosts: localhost
-  user: "{{ sudouser }}"
-  sudo: yes
-
   tasks:
     - name: Update apt package cache
       apt:
@@ -134,7 +131,7 @@
 
     - name: Download UniFi SSL import script
       get_url:
-        url: https://https://raw.githubusercontent.com/BCL-FOSS/Linux-Utils/main/unifi_ssl_deb_import.sh
+        url: https://raw.githubusercontent.com/BCL-FOSS/Linux-Utils/refs/heads/main/unifi_ssl_deb_import.sh
         dest: /usr/local/bin/unifi_ssl_deb_import.sh
         mode: '0755'
 

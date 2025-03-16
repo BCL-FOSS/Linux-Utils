@@ -15,11 +15,6 @@ SSL import scripts from [Steve Jenkin's unifi-linux-utils unifi_ssl_import.sh](h
 ```
 2. Run ubnt-ssl-config.sh
 ```bash
-    curl https://get.acme.sh | sh -s email={{ acme_email }}
-    # Restart terminal to enable acme.sh
-    # Follow ACME DNS API documentation for your DNS provider
-    export VULTR_API_KEY="<Your API key>"
-    ./acme.sh --issue --dns dns_vultr -d example.com -d *.example.com
     # Run ubnt ssl configuration
     sudo chmod +x ubnt-ssl.config.sh
     sudo ./ubnt-ssl-config.sh {{ controller fqdn }}

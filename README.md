@@ -16,7 +16,7 @@ SSL import scripts from [Steve Jenkin's unifi-linux-utils unifi_ssl_import.sh](h
 2. Run ubnt-ssl-config.sh
 ```bash
     # Run ubnt ssl configuration
-    sudo chmod +x ubnt-ssl.config.sh
-    sudo ./ubnt-ssl-config.sh {{ controller fqdn }}
+    sudo chmod +x ubnt-ssl-config.sh
+    sudo ./ubnt-ssl-config.sh {{ email }} {{ controller-fqdn }}
 ```
 

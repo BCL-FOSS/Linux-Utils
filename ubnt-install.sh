@@ -6,7 +6,7 @@ echo 'deb [ arch=amd64,arm64 ] https://www.ui.com/downloads/unifi/debian stable 
 sudo wget -O /etc/apt/trusted.gpg.d/unifi-repo.gpg https://dl.ui.com/unifi/unifi-repo.gpg
 
 # Mongo Repo
-sudo apt-get install gnupg curl
+sudo apt-get install -y gnupg curl
 curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc |    sudo gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg    --dearmor
 echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
 
@@ -16,6 +16,6 @@ ufw allow 8443
 
 sudo apt-get update
 sudo apt-get install -y mongodb-org
-sudo apt-get update && sudo apt-get install unifi -y
+sudo apt-get update && sudo apt-get install -y unifi
 systemctl status unifi
 

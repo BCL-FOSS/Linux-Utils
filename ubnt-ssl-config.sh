@@ -1,14 +1,12 @@
 #!/bin/sh
 
-curl https://get.acme.sh | sh -s email=bcladmin@baughcl.com
 acme.sh --issue --dns dns_cf -d $1
 
 acme.sh --issue --dns dns_cf -d $1
 
-sudo add-apt-repository ppa:certbot/certbot
 sudo apt install snapd
 sudo snap install core; sudo snap refresh core
-sudo snap install --classic certbot
+sudo apt install certbot python3-certbot-apache
 sudo ln -s /snap/bin/certbot /usr/bin/certbot
 sudo certbot --apache -d $1
 sudo certbot -d $1

@@ -1,5 +1,5 @@
 #!/bin/sh
-# Pull and run server hardening playbook for Production Ubuntu Server
+# Install pipx on ubuntu
 
 sudo apt update
 

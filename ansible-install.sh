@@ -1,5 +1,5 @@
 #!/bin/sh
-# Pull and run server hardening playbook for Production Ubuntu Server
+# install ansible with pipx
 
 pipx install --include-deps ansible
 pipx ensurepath

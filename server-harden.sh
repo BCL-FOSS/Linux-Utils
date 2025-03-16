@@ -6,12 +6,6 @@ sudo apt update
 sudo apt install -y pipx
 pipx ensurepath
 
-# Add pipx bin directory to PATH if not already present
-if ! echo "$PATH" | grep -q "$HOME/.local/bin"; then
-    echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.bashrc"
-    export PATH="$HOME/.local/bin:$PATH"
-fi
-
 # Install Ansible with dependencies
 
 sudo PIPX_HOME=/opt/pipx PIPX_BIN_DIR=/usr/local/bin pipx install --include-deps ansible

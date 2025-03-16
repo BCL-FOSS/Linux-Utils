@@ -8,7 +8,7 @@ pipx ensurepath
 
 # Install Ansible with dependencies
 
-sudo PIPX_HOME=/opt/pipx PIPX_BIN_DIR=/usr/local/bin pipx install --include-deps ansible
+pipx install --include-deps ansible
 
 # Verify installation
 pipx list

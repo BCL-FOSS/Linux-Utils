@@ -13,7 +13,8 @@ if ! echo "$PATH" | grep -q "$HOME/.local/bin"; then
 fi
 
 # Install Ansible with dependencies
-pipx install --include-deps ansible
+
+sudo PIPX_HOME=/opt/pipx PIPX_BIN_DIR=/usr/local/bin pipx install --include-deps ansible
 
 # Verify installation
 pipx list

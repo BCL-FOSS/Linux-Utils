@@ -13,6 +13,7 @@ echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gp
 # Allow necessary ports/Install MongoDB & UniFi Network Controller
 ufw allow 8080
 ufw allow 8443
+ufw allow 80
 
 sudo apt-get update
 sudo apt-get install -y mongodb-org

@@ -12,7 +12,7 @@ pipx install --include-deps ansible
 
 # Verify installation
 pipx list
-ansible --version
+# ansible --version
 
 #sudo ansible-pull -U "https://github.com/BCL-FOSS/Linux-Utils.git" -i localhost, -c local server-harden.yml \
 #                --extra-vars "sudouser=$1 ctrl_ip=$2"

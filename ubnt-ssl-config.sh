@@ -1,8 +1,4 @@
-#!/bin/sh
-
-acme.sh --issue --dns dns_cf -d $1
-
-acme.sh --issue --dns dns_cf -d $1
+#!/bin/bash
 
 sudo apt install snapd
 sudo snap install core; sudo snap refresh core

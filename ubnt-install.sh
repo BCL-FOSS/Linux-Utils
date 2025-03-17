@@ -20,7 +20,7 @@ install_unifi() {
     sudo apt-get update
     sudo apt-get install -y mongodb-org
     sudo apt-get update && sudo apt-get install -y unifi
-    systemctl status unifi
+    # systemctl status unifi
 
 }
 

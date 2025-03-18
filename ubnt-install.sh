@@ -24,7 +24,6 @@ sudo apt-get update &&  sudo apt-get install -y certbot && sudo apt-get install 
 certbot --apache --email "$1" --no-eff-email --agree-tos -n -d "$2" --quiet
 
 # UniFi SSL Import
-
 # CONFIGURATION OPTIONS
 UNIFI_HOSTNAME=$2
 UNIFI_SERVICE=unifi
@@ -39,9 +38,9 @@ LE_MODE=yes
 LE_LIVE_DIR=/etc/letsencrypt/live
 
 # THE FOLLOWING OPTIONS NOT REQUIRED IF LE_MODE IS ENABLED
-# PRIV_KEY=/etc/ssl/private/${UNIFI_HOSTNAME}.key
-# SIGNED_CRT=/etc/ssl/certs/${UNIFI_HOSTNAME}.crt
-# CHAIN_FILE=/etc/ssl/certs/startssl-chain.crt
+PRIV_KEY=/etc/ssl/private/${UNIFI_HOSTNAME}.key
+SIGNED_CRT=/etc/ssl/certs/${UNIFI_HOSTNAME}.crt
+CHAIN_FILE=/etc/ssl/certs/startssl-chain.crt
 
 # CONFIGURATION OPTIONS YOU PROBABLY SHOULDN'T CHANGE
 ALIAS=unifi
@@ -77,15 +76,15 @@ if [[ ${LE_MODE} == "true" ]]; then
 fi
 
 # Verify required files exist
-#if [[ ! -f ${PRIV_KEY} ]] || [[ ! -f ${CHAIN_FILE} ]]; then
-#	printf "\nMissing one or more required files. Check your settings.\n"
-#	exit 1
-#else
+if [[ ! -f ${PRIV_KEY} ]] || [[ ! -f ${CHAIN_FILE} ]]; then
+	printf "\nMissing one or more required files. Check your settings.\n"
+	exit 1
+else
 	# Everything looks OK to proceed
-printf "\nImporting the following files:\n"
-printf "Private Key: %s\n" "$PRIV_KEY"
-printf "CA File: %s\n" "$CHAIN_FILE"
-#fi
+	printf "\nImporting the following files:\n"
+	printf "Private Key: %s\n" "$PRIV_KEY"
+	printf "CA File: %s\n" "$CHAIN_FILE"
+fi
 
 # Create temp files
 P12_TEMP=$(mktemp)

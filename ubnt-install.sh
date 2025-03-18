@@ -77,15 +77,15 @@ if [[ ${LE_MODE} == "true" ]]; then
 fi
 
 # Verify required files exist
-if [[ ! -f ${PRIV_KEY} ]] || [[ ! -f ${CHAIN_FILE} ]]; then
-	printf "\nMissing one or more required files. Check your settings.\n"
-	exit 1
-else
+#if [[ ! -f ${PRIV_KEY} ]] || [[ ! -f ${CHAIN_FILE} ]]; then
+#	printf "\nMissing one or more required files. Check your settings.\n"
+#	exit 1
+#else
 	# Everything looks OK to proceed
-	printf "\nImporting the following files:\n"
-	printf "Private Key: %s\n" "$PRIV_KEY"
-	printf "CA File: %s\n" "$CHAIN_FILE"
-fi
+printf "\nImporting the following files:\n"
+printf "Private Key: %s\n" "$PRIV_KEY"
+printf "CA File: %s\n" "$CHAIN_FILE"
+#fi
 
 # Create temp files
 P12_TEMP=$(mktemp)

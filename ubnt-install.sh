@@ -20,7 +20,6 @@ install_unifi() {
     sudo apt-get update
     sudo apt-get install -y mongodb-org
     sudo apt-get update && sudo apt-get install -y unifi
-    # systemctl status unifi
 
 }
 
@@ -169,4 +168,5 @@ sudo certbot --apache --email $1 --no-eff-email --agree-tos -n -d $2
 # sudo chmod +x /usr/local/bin/unifi_ssl_deb_import.sh
 # sudo nano -w /usr/local/bin/unifi_ssl_deb_import.sh
 ssl_config $2
+systemctl status unifi
 

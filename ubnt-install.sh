@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-export DEBIAN_FRONTEND=noninteractive
-
 # Unifi Repo
 sudo apt-get update && sudo apt-get install -y ca-certificates apt-transport-https
 echo 'deb [ arch=amd64,arm64 ] https://www.ui.com/downloads/unifi/debian stable ubiquiti' | sudo tee /etc/apt/sources.list.d/100-ubnt-unifi.list
@@ -22,7 +20,7 @@ sudo apt-get install -y mongodb-org
 sudo apt-get update && sudo apt-get install -y unifi
 
 # Request SSL Cert
-sudo apt update && sudo apt install certbot python3-certbot-apache -y
+sudo apt-get update && sudo apt-get install certbot python3-certbot-apache -y
 sudo certbot --apache --email $1 --no-eff-email --agree-tos -n -d $2
 
 # UniFi SSL Import

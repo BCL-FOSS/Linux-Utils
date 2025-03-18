@@ -155,6 +155,8 @@ rm -f "${P12_TEMP}"
 printf "\nRestarting UniFi Controller to apply new Let's Encrypt SSL certificate...\n"
 service "${UNIFI_SERVICE}" start
 
+systemctl status unifi
+
 # That's all, folks!
 printf "\nDone!\n"
 
@@ -164,5 +166,5 @@ printf "\nDone!\n"
 # sudo chmod +x /usr/local/bin/unifi_ssl_deb_import.sh
 # sudo nano -w /usr/local/bin/unifi_ssl_deb_import.sh
 # ssl_config "$2"
-# systemctl status unifi
+# 
 

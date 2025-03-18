@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
 # Unifi Repo
-apt-get update && apt-get install -y ca-certificates apt-transport-https
+sudo apt-get update && sudo apt-get install -y ca-certificates apt-transport-https
 echo 'deb [ arch=amd64,arm64 ] https://www.ui.com/downloads/unifi/debian stable ubiquiti' | sudo tee /etc/apt/sources.list.d/100-ubnt-unifi.list
 wget -O /etc/apt/trusted.gpg.d/unifi-repo.gpg https://dl.ui.com/unifi/unifi-repo.gpg
 
 # Mongo Repo
-apt-get install -y gnupg curl
+sudo apt-get install -y gnupg curl
 curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc |    sudo gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg    --dearmor
 echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
 
@@ -15,12 +15,12 @@ ufw allow 8080
 ufw allow 8443
 ufw allow 80
 
-apt-get update
-apt-get install -y mongodb-org
-apt-get update && apt-get install -y unifi
+sudo apt-get update
+sudo apt-get install -y mongodb-org
+sudo apt-get update && sudo apt-get install -y unifi
 
 # Request SSL Cert
-apt-get update &&  apt-get install certbot python3-certbot-apache -y
+sudo apt-get update &&  sudo apt-get install -y certbot python3-certbot-apache
 certbot --apache --email "$1" --no-eff-email --agree-tos -n -d "$2" --quiet
 
 # UniFi SSL Import

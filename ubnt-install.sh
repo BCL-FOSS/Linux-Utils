@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 # Unifi Repo
 sudo apt-get update && sudo apt-get install -y ca-certificates apt-transport-https

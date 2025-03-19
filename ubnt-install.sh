@@ -23,12 +23,12 @@ sudo apt-get update && sudo apt-get install -y unifi
 sudo apt-get update &&  sudo apt-get install -y certbot && sudo apt-get install -y python3-certbot-apache
 certbot --apache --email "$1" --no-eff-email --agree-tos -n -d "$2" --quiet
 
-sudo apt install -y pipx
-sudo pipx ensurepath
-pipx install --include-deps ansible
+#sudo apt install -y pipx
+#sudo pipx ensurepath
+#pipx install --include-deps ansible
 
-sudo ansible-pull -U "https://github.com/BCL-FOSS/Linux-Utils.git" -i localhost, -c local ubnt-ssl-config.yml \
-                   --extra-vars "hosturl=$2"
+#sudo ansible-pull -U "https://github.com/BCL-FOSS/Linux-Utils.git" -i localhost, -c local ubnt-ssl-config.yml \
+#                   --extra-vars "hosturl=$2"
 
 systemctl status unifi
 

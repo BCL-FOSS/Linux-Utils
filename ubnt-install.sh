@@ -22,6 +22,9 @@ sudo apt-get update && sudo apt-get install -y unifi
 # Request SSL Cert
 sudo apt-get update &&  sudo apt-get install -y certbot && sudo apt-get install -y python3-certbot-apache
 
+# Request SSL certs
+certbot --apache --email "$1" --no-eff-email --agree-tos -n -d "$2" --quiet
+
 # Grant app user permissions to letsencrypt directory
 TARGET_DIR=/etc/letsencrypt/live
 USER=srvradmin
@@ -31,13 +34,10 @@ sudo chmod -R 770 $TARGET_DIR
 # Verify changes
 sudo ls -ld $TARGET_DIR
 
-# Request SSL certs
-certbot --apache --email "$1" --no-eff-email --agree-tos -n -d "$2" --quiet
-
 # View letsencrypt directory
 sudo la $TARGET_DIR
 
-systemctl status unifi
+# systemctl status unifi
 
 #sudo apt install -y pipx
 #sudo pipx ensurepath

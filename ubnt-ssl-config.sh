@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 ssl_config() {
     # CONFIGURATION OPTIONS
@@ -15,9 +15,9 @@ ssl_config() {
     LE_LIVE_DIR=/etc/letsencrypt/live
 
     # THE FOLLOWING OPTIONS NOT REQUIRED IF LE_MODE IS ENABLED
-    # PRIV_KEY=/etc/ssl/private/${UNIFI_HOSTNAME}.key
-    # SIGNED_CRT=/etc/ssl/certs/${UNIFI_HOSTNAME}.crt
-    # CHAIN_FILE=/etc/ssl/certs/startssl-chain.crt
+    PRIV_KEY=/etc/ssl/private/${UNIFI_HOSTNAME}.key
+    SIGNED_CRT=/etc/ssl/certs/${UNIFI_HOSTNAME}.crt
+    CHAIN_FILE=/etc/ssl/certs/startssl-chain.crt
 
     # CONFIGURATION OPTIONS YOU PROBABLY SHOULDN'T CHANGE
     ALIAS=unifi
@@ -134,12 +134,7 @@ ssl_config() {
     # That's all, folks!
     printf "\nDone!\n"
 
-    exit 0
 }
 
 ssl_config $1
 systemctl status unifi
-
-# sudo wget https://raw.githubusercontent.com/BCL-FOSS/Linux-Utils/refs/heads/main/unifi_ssl_deb_import.sh -O /run/init_scripts/unifi_ssl_deb_import.sh
-# sudo chmod +x /usr/local/bin/unifi_ssl_deb_import.sh
-# sudo nano -w /usr/local/bin/unifi_ssl_deb_import.sh

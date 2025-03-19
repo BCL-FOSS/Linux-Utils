@@ -24,7 +24,7 @@ sudo apt-get update &&  sudo apt-get install -y certbot && sudo apt-get install 
 certbot --apache --email "$1" --no-eff-email --agree-tos -n -d "$2" --quiet
 
 # CONFIGURATION OPTIONS
-UNIFI_HOSTNAME=$1
+UNIFI_HOSTNAME=$2
 UNIFI_SERVICE=unifi
 
 UNIFI_DIR=/var/lib/unifi

@@ -35,7 +35,7 @@ sudo chmod -R 770 $TARGET_DIR
 sudo ls -ld $TARGET_DIR
 
 # View letsencrypt directory
-sudo la $TARGET_DIR
+sudo ls $TARGET_DIR
 
 # systemctl status unifi
 

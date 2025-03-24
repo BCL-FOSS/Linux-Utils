@@ -1,91 +1,43 @@
 ---
 - hosts: localhost
+  vars:
+    unifi_hostname: "{{ host }}"
+    admin_email: "{{ alert_email }}"
+    user: "srvradmin"
+    unifi_service: "unifi"
+    unifi_dir: "/var/lib/unifi"
+    java_dir: "/usr/lib/unifi"
+    keystore: "{{ unifi_dir }}/keystore"
+    le_mode: true
+    le_live_dir: "/etc/letsencrypt/live"
+    priv_key: "{{ le_live_dir }}/{{ unifi_hostname }}/privkey.pem"
+    chain_file: "{{ le_live_dir }}/{{ unifi_hostname }}/fullchain.pem"
+    alias: "unifi"
+    password: "aircontrolenterprise"
+    target_dir: "/etc/letsencrypt/live"
+
   tasks:
-    - name: Update apt package cache
+    - name: Install required dependencies
       apt:
-        update_cache: yes
-
-    - name: Upgrade installed apt packages 
-      apt:
-        upgrade: dist
-      register: upgrade
-      retries: 15
-      delay: 5
-      until: upgrade is success
-
-    - name: Ensure that a base set of software packages are installed
-      apt:
-        pkg:
-          - ufw
-          - vim
-          - nano
-          - git
+        name:
           - ca-certificates
+          - apt-transport-https
           - gnupg
           - curl
-          - snapd
-        state: latest
+          - ufw
+        state: present
 
     - name: Add UniFi repository
-      copy:
-        dest: /etc/apt/sources.list.d/100-ubnt-unifi.list
-        content: 'deb [ arch=amd64,arm64 ] https://www.ui.com/downloads/unifi/debian stable ubiquiti'
+      shell: |
+        echo 'deb [ arch=amd64,arm64 ] https://www.ui.com/downloads/unifi/debian stable ubiquiti' > /etc/apt/sources.list.d/100-ubnt-unifi.list
+        wget -O /etc/apt/trusted.gpg.d/unifi-repo.gpg https://dl.ui.com/unifi/unifi-repo.gpg
 
-    - name: Download and add UniFi GPG key
-      get_url:
-        url: https://dl.ui.com/unifi/unifi-repo.gpg
-        dest: /etc/apt/trusted.gpg.d/unifi-repo.gpg
+    - name: Add MongoDB repository
+      shell: |
+        curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg --dearmor
+        echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" > /etc/apt/sources.list.d/mongodb-org-7.0.list
 
-    - name: Download and add MongoDB 8.0 GPG key
-      shell: curl -fsSL https://www.mongodb.org/static/pgp/server-8.0.asc | gpg -o /usr/share/keyrings/mongodb-server-8.0.gpg --dearmor
-      changed_when: false
-
-    - name: Add MongoDB 8.0 repository
-      copy:
-        dest: /etc/apt/sources.list.d/mongodb-org-8.0.list
-        content: 'deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg ] https://repo.mongodb.org/apt/ubuntu noble/mongodb-org/8.0 multiverse'
-
-    - name: Update APT package index after adding repositories
-      apt:
-        update_cache: yes
-
-    - name: Install MongoDB
-      apt:
-        name:
-          - mongodb-org
-        state: present
-
-    - name: Reload systemd daemon
-      command: systemctl daemon-reload
-
-    - name: Start MongoDB
-      command: systemctl start mongod
-
-    - name: Enable MongoDB
-      command: systemctl enable mongod
-
-    - name: Ensure MongoDB service is running
-      systemd:
-        name: mongod
-        state: started
-        enabled: yes
-
-    - name: Install UniFi Controller
-      apt:
-        name:
-          - unifi
-        state: present
-
-    - name: Start UniFi
-      command: service unifi start
-
-    - name: Ensure UniFi service is running
-      systemd:
-        name: unifi
-        state: started
-        enabled: yes
-
-    - name: Open required firewall ports
+    - name: Allow necessary firewall ports
       ufw:
         rule: allow
         port: "{{ item }}"
@@ -95,45 +47,40 @@
         - 8443
         - 80
 
-    - name: Install Acme.sh for SSL
-      shell: curl https://get.acme.sh | sh -s email={{ acme_email }}
-      args:
-        creates: ~/.acme.sh/acme.sh
-      changed_when: false
+    - name: Install MongoDB and UniFi Controller
+      apt:
+        update_cache: yes
+        name:
+          - mongodb-org
+          - unifi
+        state: present
 
-    - name: Issue SSL certificate using Cloudflare DNS
-      shell: acme.sh --issue --dns dns_cf -d {{ controller_hostname }}
-      changed_when: false
+    - name: Install Certbot
+      apt:
+        name:
+          - certbot
+          - python3-certbot-apache
+        state: present
 
-    - name: Install Certbot and enable SSL with Apache
-      block:
-        - name: Add Certbot PPA
-          apt_repository:
-            repo: ppa:certbot/certbot
-            state: present
+    - name: Request SSL certificate with Certbot
+      command: >
+        certbot --apache --email "{{ admin_email }}" --no-eff-email --agree-tos -n -d "{{ unifi_hostname }}" --quiet
 
-        - name: Install Snapd and Certbot
-          apt:
-            name:
-              - snapd
-            state: present
+    - name: Set permissions for Let's Encrypt directory
+      file:
+        path: "{{ target_dir }}"
+        owner: "{{ user }}"
+        group: "{{ user }}"
+        mode: "0770"
+        recurse: yes
 
-        - name: Install and update Certbot via Snap
-          shell: |
-            snap install core && snap refresh core
-            snap install --classic certbot
-            ln -s /snap/bin/certbot /usr/bin/certbot
-          changed_when: false
+    - name: Verify Let's Encrypt directory permissions
+      command: "ls -ld {{ target_dir }}"
 
-        - name: Obtain SSL certificate using Certbot
-          shell: certbot certonly -d {{ controller_hostname }}
-          changed_when: false
+    - name: View Let's Encrypt directory contents
+      command: "ls {{ target_dir }}"
 
-    - name: Download UniFi SSL import script
-      get_url:
-        url: https://raw.githubusercontent.com/BCL-FOSS/Linux-Utils/refs/heads/main/unifi_ssl_deb_import.sh
-        dest: /usr/local/bin/unifi_ssl_deb_import.sh
-        mode: '0755'
-
-    - name: Run UniFi SSL import script
-      command: /usr/local/bin/unifi_ssl_deb_import.sh {{ controller_hostname }}
+    - name: Restart UniFi Controller
+      service:
+        name: "{{ unifi_service }}"
+        state: restarted

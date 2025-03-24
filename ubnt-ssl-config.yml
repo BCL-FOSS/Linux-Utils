@@ -1,70 +1,60 @@
 ---
 - hosts: localhost
-  become: yes
   vars:
-    unifi_hostname: "{{ hosturl }}"
+    unifi_hostname: "{{ host }}"
     unifi_service: "unifi"
     unifi_dir: "/var/lib/unifi"
     java_dir: "/usr/lib/unifi"
-    keystore: "{{ unifi_dir }}/keystore"
-    le_mode: true
+    keystore: "/var/lib/unifi/keystore"
+    le_mode: true  # Set to false if not using Let's Encrypt
     le_live_dir: "/etc/letsencrypt/live"
+    priv_key: "/etc/letsencrypt/live/{{ unifi_hostname }}/privkey.pem"
+    chain_file: "/etc/letsencrypt/live/{{ unifi_hostname }}/fullchain.pem"
     alias: "unifi"
     password: "aircontrolenterprise"
 
   tasks:
-    - name: Determine SSL certificate file paths
-      set_fact:
-        priv_key: "{{ le_live_dir }}/{{ unifi_hostname }}/privkey.pem"
-        chain_file: "{{ le_live_dir }}/{{ unifi_hostname }}/fullchain.pem"
-
     - name: Stop UniFi Controller
       service:
         name: "{{ unifi_service }}"
         state: stopped
 
-    - name: Check if MD5 checksum exists and matches
-      command: md5sum -c "{{ le_live_dir }}/{{ unifi_hostname }}/privkey.pem.md5"
-      register: md5_result
-      changed_when: false
-      failed_when: false
-
-    - name: Update MD5 checksum if certificate has changed
-      command: md5sum "{{ priv_key }}" > "{{ le_live_dir }}/{{ unifi_hostname }}/privkey.pem.md5"
-      when: md5_result.rc != 0
-
-    - name: Ensure keystore backup exists
-      copy:
-        src: "{{ keystore }}"
-        dest: "{{ keystore }}.orig"
-        remote_src: yes
-      when: not ansible_facts['files'][keystore + ".orig"] is defined
-
-    - name: Create non-destructive backup of keystore
+    - name: Backup existing keystore
       copy:
         src: "{{ keystore }}"
         dest: "{{ keystore }}.bak"
         remote_src: yes
-      when: ansible_facts['files'][keystore + ".orig"] is defined
+      ignore_errors: yes
 
-    - name: Export SSL certificate to temporary PKCS12 file
-      command: >
-        openssl pkcs12 -export -in "{{ chain_file }}" -inkey "{{ priv_key }}"
-        -out /tmp/unifi.p12 -passout pass:"{{ password }}" -name "{{ alias }}"
+    - name: Export SSL certificate to PKCS12 file
+      command:
+        cmd: >
+          openssl pkcs12 -export \
+          -in "{{ chain_file }}" \
+          -inkey "{{ priv_key }}" \
+          -out "/tmp/unifi.p12" \
+          -passout pass:"{{ password }}" \
+          -name "{{ alias }}"
 
-    - name: Remove old certificate from UniFi keystore
-      command: >
-        keytool -delete -alias "{{ alias }}" -keystore "{{ keystore }}"
-        -deststorepass "{{ password }}"
+    - name: Remove previous certificate from keystore
+      command:
+        cmd: >
+          keytool -delete -alias "{{ alias }}" -keystore "{{ keystore }}" -deststorepass "{{ password }}"
+      ignore_errors: yes
 
-    - name: Import new SSL certificate into UniFi keystore
-      command: >
-        keytool -importkeystore -srckeystore /tmp/unifi.p12 -srcstoretype PKCS12
-        -srcstorepass "{{ password }}" -destkeystore "{{ keystore }}"
-        -deststorepass "{{ password }}" -destkeypass "{{ password }}"
-        -alias "{{ alias }}" -trustcacerts
+    - name: Import new SSL certificate into keystore
+      command:
+        cmd: >
+          keytool -importkeystore \
+          -srckeystore "/tmp/unifi.p12" \
+          -srcstoretype PKCS12 \
+          -srcstorepass "{{ password }}" \
+          -destkeystore "{{ keystore }}" \
+          -deststorepass "{{ password }}" \
+          -destkeypass "{{ password }}" \
+          -alias "{{ alias }}" -trustcacerts
 
-    - name: Remove temporary files
+    - name: Remove temporary PKCS12 file
       file:
         path: "/tmp/unifi.p12"
         state: absent

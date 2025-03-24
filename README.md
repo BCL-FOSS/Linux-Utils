@@ -1,7 +1,7 @@
-# Linux-Utils
+# SDN-Linux-Utils
 
 ### About ###
-A collection of scripts for admin automation of self hosted Ubiquiti UniFi & TP-Link Omada Network Controllers.
+A collection of scripts for self hosted Ubiquiti UniFi & TP-Link Omada Network Controllers.
 
 Primarily supporting controllers hosted on Ubuntu & Debian based distros.
 
